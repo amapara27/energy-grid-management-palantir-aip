@@ -463,3 +463,166 @@ button {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+/* ============================================================
+   Action Inbox
+   ============================================================ */
+
+.action-inbox {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg-panel);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.action-inbox__title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.action-inbox__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: var(--space-8);
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.action-inbox__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.action-inbox__card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.action-inbox__card:hover {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.action-inbox__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.action-inbox__wo-id {
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: 0.04em;
+}
+
+.action-inbox__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.action-inbox__badge--critical {
+  background: var(--color-risk-red-bg);
+  color: var(--color-risk-red);
+}
+
+.action-inbox__badge--high {
+  background: var(--color-risk-amber-bg);
+  color: var(--color-risk-amber);
+}
+
+.action-inbox__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.action-inbox__field {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.action-inbox__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.action-inbox__btn {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: background-color var(--transition-fast), opacity var(--transition-fast);
+  min-height: var(--min-touch-target);
+}
+
+.action-inbox__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-inbox__btn--approve {
+  background: var(--color-risk-green-bg);
+  color: var(--color-risk-green);
+  border: 1px solid rgba(34, 214, 122, 0.25);
+}
+
+.action-inbox__btn--approve:hover:not(:disabled) {
+  background: rgba(34, 214, 122, 0.22);
+}
+
+.action-inbox__btn--defer {
+  background: var(--color-risk-amber-bg);
+  color: var(--color-risk-amber);
+  border: 1px solid rgba(245, 166, 35, 0.25);
+}
+
+.action-inbox__btn--defer:hover:not(:disabled) {
+  background: rgba(245, 166, 35, 0.22);
+}
+
+.action-inbox__btn--info {
+  background: var(--color-accent-muted);
+  color: var(--color-accent);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.action-inbox__btn--info:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.22);
+}
