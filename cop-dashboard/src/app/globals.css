@@ -626,3 +626,291 @@ button {
 .action-inbox__btn--info:hover:not(:disabled) {
   background: rgba(59, 130, 246, 0.22);
 }
+
+
+/* ============================================================
+   Object View Panel (Slide-out)
+   ============================================================ */
+
+.ovp {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;
+  height: 100vh;
+  z-index: var(--z-overlay);
+  background: var(--color-bg-panel);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(100%);
+  transition: transform var(--transition-slow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ovp--open {
+  transform: translateX(0);
+}
+
+.ovp__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.ovp__title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: 0.04em;
+}
+
+.ovp__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--min-touch-target);
+  height: var(--min-touch-target);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.ovp__close:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.ovp__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ---- Empty State ---- */
+
+.ovp__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.ovp__empty-icon {
+  font-size: var(--font-size-3xl);
+  color: var(--color-text-muted);
+  opacity: 0.4;
+}
+
+.ovp__empty-text {
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  max-width: 220px;
+}
+
+/* ---- Sections ---- */
+
+.ovp__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ovp__section-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.ovp__muted {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ---- Definition List ---- */
+
+.ovp__dl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.ovp__dl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--space-1) 0;
+}
+
+.ovp__dl-row dt {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.ovp__dl-row dd {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Forecast Cards ---- */
+
+.ovp__forecast-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ovp__forecast-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  transition: border-color var(--transition-fast);
+}
+
+.ovp__forecast-card:hover {
+  border-color: var(--color-border);
+}
+
+.ovp__forecast-card--warning {
+  border-color: var(--color-risk-red);
+  background: var(--color-risk-red-bg);
+}
+
+.ovp__forecast-time {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.ovp__forecast-details {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.ovp__red-flag {
+  color: var(--color-risk-red);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---- Work Order Rows ---- */
+
+.ovp__wo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ovp__wo-row {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+}
+
+.ovp__wo-id {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.ovp__wo-priority {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+.ovp__wo-priority--critical {
+  background: var(--color-risk-red-bg);
+  color: var(--color-risk-red);
+}
+
+.ovp__wo-priority--high {
+  background: var(--color-risk-amber-bg);
+  color: var(--color-risk-amber);
+}
+
+.ovp__wo-time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+/* ---- Sparklines ---- */
+
+.ovp__sparklines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ovp__sparkline-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.ovp__sparkline-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  min-width: 80px;
+}
+
+.ovp__sparkline-svg {
+  flex-shrink: 0;
+}
+
+/* ---- Responsive: stack panel below 1024px ---- */
+
+@media (max-width: 1023px) {
+  .ovp {
+    width: 100%;
+    height: 60vh;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    transform: translateY(100%);
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .ovp--open {
+    transform: translateY(0);
+  }
+}
