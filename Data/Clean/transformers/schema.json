@@ -1,0 +1,50 @@
+{
+  "title": "CleanTransformerDataset",
+  "description": "Clean transformer dataset produced by joining SCADA telemetry with GIS asset data. Maps to the Transformer ontology object.",
+  "type": "object",
+  "required": [
+    "transformer_id",
+    "oil_temp",
+    "load_current",
+    "age_years",
+    "last_inspection_date"
+  ],
+  "properties": {
+    "transformer_id": {
+      "type": "string",
+      "description": "Primary key - joined from GIS asset transformer_id and SCADA telemetry transformer_id"
+    },
+    "oil_temp": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Oil temperature in degrees Celsius, sourced from SCADA telemetry (oil_temp_c)"
+    },
+    "load_current": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Load current in amps, sourced from SCADA telemetry (load_amps)"
+    },
+    "age_years": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Transformer age in years, sourced from GIS asset data"
+    },
+    "last_inspection_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last inspection date in ISO 8601 format, sourced from GIS asset data"
+    },
+    "risk_score": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Computed risk score (0-100), set by Risk_Scoring logic. Null until first computation."
+    },
+    "alert_status": {
+      "type": ["string", "null"],
+      "enum": ["Active", "Cleared", "Data_Incomplete", null],
+      "description": "Alert status set by Smart_Alerting logic. Null until first evaluation."
+    }
+  },
+  "additionalProperties": false
+}

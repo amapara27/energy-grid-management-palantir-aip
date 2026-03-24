@@ -1,0 +1,16 @@
+# ERP system connection configuration for Grid 360 Digital Twin
+# Referenced by: Logic/ERP_Writeback
+# Requirements: 7.1 (ERP endpoint for work order transmission), 7.5 (retry on failure)
+
+erp:
+  endpoint_url: "https://<your-erp-host>/api/v1/work-orders"
+  auth:
+    method: "oauth2"                # Supported: oauth2, basic, api_key
+    token_url: "https://<your-erp-host>/oauth/token"
+    client_id: "<your-client-id>"
+    client_secret: "<your-client-secret>"
+  timeout_ms: 30000                 # Request timeout in milliseconds
+  retry:
+    max_retries: 3
+    initial_backoff_ms: 1000
+    backoff_multiplier: 2

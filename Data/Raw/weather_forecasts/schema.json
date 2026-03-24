@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "required": ["circuit_id", "wind_speed_mph", "humidity_pct", "red_flag_warning", "forecast_ts"],
+  "properties": {
+    "circuit_id": { "type": "string" },
+    "wind_speed_mph": { "type": "number" },
+    "humidity_pct": { "type": "number" },
+    "red_flag_warning": { "type": "boolean" },
+    "forecast_ts": { "type": "string", "format": "date-time" }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "title": "CleanWeatherDataset",
+  "description": "Clean weather dataset produced by normalizing weather API forecast data. Maps to the Weather_Forecast ontology object.",
+  "type": "object",
+  "required": [
+    "forecast_id",
+    "circuit_id",
+    "wind_speed_mph",
+    "humidity_pct",
+    "red_flag_warning",
+    "forecast_timestamp"
+  ],
+  "properties": {
+    "forecast_id": {
+      "type": "string",
+      "description": "Primary key - unique forecast identifier, generated during normalization"
+    },
+    "circuit_id": {
+      "type": "string",
+      "description": "Foreign key referencing Circuit - sourced from weather API (circuit_id)"
+    },
+    "wind_speed_mph": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Wind speed in miles per hour, sourced from weather API (wind_speed_mph)"
+    },
+    "humidity_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Humidity percentage (0-100), sourced from weather API (humidity_pct)"
+    },
+    "red_flag_warning": {
+      "type": "boolean",
+      "description": "Whether a red flag fire weather warning is active, sourced from weather API (red_flag_warning)"
+    },
+    "forecast_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Forecast timestamp in ISO 8601 format, sourced from weather API (forecast_ts)"
+    }
+  },
+  "additionalProperties": false
+}

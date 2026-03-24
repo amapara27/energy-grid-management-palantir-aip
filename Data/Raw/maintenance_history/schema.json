@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "required": ["wo_id", "transformer_id", "work_type", "completion_date", "technician", "outcome"],
+  "properties": {
+    "wo_id": { "type": "string" },
+    "transformer_id": { "type": "string" },
+    "work_type": { "type": "string" },
+    "completion_date": { "type": "string", "format": "date" },
+    "technician": { "type": "string" },
+    "outcome": { "type": "string" }
+  }
+}
