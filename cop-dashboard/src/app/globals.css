@@ -1008,3 +1008,373 @@ button {
   background: var(--color-bg-hover);
   color: var(--color-text-primary);
 }
+
+/* ============================================================
+   Dashboard Shell — Grid Layout (Req 9.1, 9.2)
+   ============================================================ */
+
+.dashboard-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard-shell__body {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr var(--sidebar-width);
+  gap: var(--space-3);
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-3);
+}
+
+.dashboard-shell__sidebar-left,
+.dashboard-shell__sidebar-right {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dashboard-shell__map {
+  min-height: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* ============================================================
+   Responsive: stacked single-column below 1024px (Req 9.3, 9.4)
+   ============================================================ */
+
+@media (max-width: 1023px) {
+  /* --- Layout: stacked single-column (Req 9.3) --- */
+  .dashboard-shell {
+    height: auto;
+    overflow: auto;
+  }
+
+  .dashboard-shell__body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    overflow: visible;
+  }
+
+  .dashboard-shell__map {
+    min-height: 400px;
+  }
+
+  .dashboard-shell__sidebar-left,
+  .dashboard-shell__sidebar-right {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  /* KPI Banner: wrap cards on narrow viewports */
+  .kpi-banner {
+    height: auto;
+    min-height: var(--kpi-banner-height);
+    flex-wrap: wrap;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* --- Touch targets: 44×44px minimum on ALL interactive elements (Req 9.4) --- */
+  .object-table__row,
+  .action-inbox__btn,
+  .kpi-card,
+  .ovp__close {
+    min-height: var(--min-touch-target);
+    min-width: var(--min-touch-target);
+  }
+
+  /* Toast dismiss button: override the 24px sizing to meet touch target */
+  .toast__dismiss {
+    width: var(--min-touch-target);
+    height: var(--min-touch-target);
+    min-width: var(--min-touch-target);
+    min-height: var(--min-touch-target);
+  }
+
+  /* Leaflet map markers: enlarge SVG/Canvas hit area for touch (Req 9.4) */
+  .map-widget .leaflet-interactive {
+    stroke-width: 22 !important;
+    stroke-opacity: 0 !important;
+  }
+
+  /* Toast stack: reposition for mobile to avoid edge clipping */
+  .toast-stack {
+    right: var(--space-3);
+    bottom: var(--space-3);
+    left: var(--space-3);
+  }
+
+  .toast {
+    max-width: 100%;
+  }
+}
+
+/* ============================================================
+   Entrance Animations — Staggered Reveal (Req 8.3)
+   ============================================================ */
+
+@keyframes panel-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes banner-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-banner-enter {
+  animation: banner-reveal 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0ms;
+}
+
+.anim-panel-enter-1 {
+  animation: panel-reveal 550ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 80ms;
+}
+
+.anim-panel-enter-2 {
+  animation: panel-reveal 550ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 180ms;
+}
+
+.anim-panel-enter-3 {
+  animation: panel-reveal 550ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 280ms;
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .anim-banner-enter,
+  .anim-panel-enter-1,
+  .anim-panel-enter-2,
+  .anim-panel-enter-3 {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   Hover Micro-Interactions (Req 8.4)
+   ============================================================ */
+
+/* KPI cards — lift + glow on hover */
+.kpi-card {
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md), 0 0 16px rgba(59, 130, 246, 0.12);
+}
+
+/* Object table rows — slide-in accent bar */
+.object-table__row {
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.object-table__row:hover {
+  transform: translateX(3px);
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+/* Action inbox cards — subtle lift */
+.action-inbox__card {
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.action-inbox__card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Action buttons — scale + brightness on hover */
+.action-inbox__btn {
+  transition:
+    background-color var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-fast),
+    filter var(--transition-fast);
+}
+
+.action-inbox__btn:hover:not(:disabled) {
+  transform: scale(1.04);
+  filter: brightness(1.15);
+}
+
+.action-inbox__btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Map markers — handled via Leaflet CSS: pulse ring on hover */
+.map-widget .leaflet-interactive {
+  transition: stroke-width 150ms ease-out, stroke-opacity 150ms ease-out;
+}
+
+.map-widget .leaflet-interactive:hover {
+  stroke-width: 4 !important;
+  stroke-opacity: 0.6 !important;
+}
+
+/* OVP close button — rotate on hover */
+.ovp__close {
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.ovp__close:hover {
+  transform: rotate(90deg);
+}
+
+/* Forecast cards — border glow on hover */
+.ovp__forecast-card {
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.ovp__forecast-card:hover {
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.15);
+}
+
+/* Work order rows in OVP — subtle highlight */
+.ovp__wo-row {
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.ovp__wo-row:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
+}
+
+/* ============================================================
+   Atmospheric Background Treatments (Req 8.5, 8.6)
+   ============================================================ */
+
+/* Gradient mesh overlay on the dashboard body */
+.dashboard-shell {
+  position: relative;
+}
+
+.dashboard-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 75%, rgba(239, 64, 86, 0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 40% at 50% 50%, rgba(34, 214, 122, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Subtle noise texture via SVG data URI */
+.dashboard-shell::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  pointer-events: none;
+}
+
+/* Panel backgrounds — subtle inner glow for depth */
+.object-table,
+.action-inbox {
+  background:
+    linear-gradient(
+      180deg,
+      var(--color-bg-panel) 0%,
+      rgba(22, 27, 39, 0.95) 100%
+    );
+}
+
+/* KPI banner — enhanced gradient with subtle geometric line */
+.kpi-banner {
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(59, 130, 246, 0.03) 50%,
+      transparent 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--color-bg-secondary) 0%,
+      var(--color-bg-panel) 100%
+    );
+}
+
+/* Map container — vignette edge for depth */
+.dashboard-shell__map {
+  position: relative;
+}
+
+.dashboard-shell__map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 40px 10px rgba(11, 14, 20, 0.5);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* OVP panel — edge glow when open */
+.ovp--open {
+  box-shadow:
+    var(--shadow-lg),
+    -4px 0 24px rgba(59, 130, 246, 0.08);
+}
+
+/* Geometric accent line under KPI banner */
+.kpi-banner::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-accent) 30%,
+    var(--color-risk-green) 50%,
+    var(--color-accent) 70%,
+    transparent 100%
+  );
+  opacity: 0.3;
+}
