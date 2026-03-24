@@ -361,3 +361,105 @@ button {
 .map-widget .leaflet-container {
   background: var(--color-bg-primary);
 }
+
+/* ============================================================
+   Object Table (Sidebar)
+   ============================================================ */
+
+.object-table {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg-panel);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-sm);
+}
+
+.object-table__header {
+  display: grid;
+  grid-template-columns: 1.2fr 1.4fr 0.8fr 0.8fr 0.7fr 1fr;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.object-table__th {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.object-table__th--num {
+  text-align: right;
+}
+
+.object-table__body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.object-table__row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.4fr 0.8fr 0.8fr 0.7fr 1fr;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  min-height: var(--min-touch-target);
+  align-items: center;
+  border-bottom: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.object-table__row:hover {
+  background: var(--color-bg-hover);
+}
+
+.object-table__row--selected {
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-accent-muted);
+}
+
+.object-table__row--green {
+  background: var(--color-risk-green-bg);
+}
+.object-table__row--green:hover {
+  background: rgba(34, 214, 122, 0.18);
+}
+
+.object-table__row--amber {
+  background: var(--color-risk-amber-bg);
+}
+.object-table__row--amber:hover {
+  background: rgba(245, 166, 35, 0.18);
+}
+
+.object-table__row--red {
+  background: var(--color-risk-red-bg);
+}
+.object-table__row--red:hover {
+  background: rgba(239, 64, 86, 0.18);
+}
+
+.object-table__cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-primary);
+}
+
+.object-table__cell--num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
