@@ -8,8 +8,8 @@
  * @see Requirements 6.4, 6.5
  */
 
-import type { MaintenanceWorkOrder } from "../../Ontology/Objects/MaintenanceWorkOrder.js";
-import type { RejectionAction } from "../../Logic/Work_Order_Service/types.js";
+import type { MaintenanceWorkOrder } from "../../../Ontology/Objects/MaintenanceWorkOrder.js";
+import type { RejectionAction } from "../../../Logic/Work_Order_Service/types.js";
 
 /** Input collected from the operator during rejection. */
 export interface RejectionInput {

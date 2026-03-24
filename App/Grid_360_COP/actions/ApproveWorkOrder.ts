@@ -8,8 +8,8 @@
  * @see Requirements 6.2, 6.3
  */
 
-import type { MaintenanceWorkOrder } from "../../Ontology/Objects/MaintenanceWorkOrder.js";
-import type { ApprovalAction } from "../../Logic/Work_Order_Service/types.js";
+import type { MaintenanceWorkOrder } from "../../../Ontology/Objects/MaintenanceWorkOrder.js";
+import type { ApprovalAction } from "../../../Logic/Work_Order_Service/types.js";
 
 /** Input collected from the operator during approval. */
 export interface ApprovalInput {

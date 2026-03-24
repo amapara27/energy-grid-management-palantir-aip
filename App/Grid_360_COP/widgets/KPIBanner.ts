@@ -10,8 +10,8 @@
  * @see Requirements 5.5
  */
 
-import type { Transformer } from "../../Ontology/Objects/Transformer.js";
-import type { MaintenanceWorkOrder } from "../../Ontology/Objects/MaintenanceWorkOrder.js";
+import type { Transformer } from "../../../Ontology/Objects/Transformer.js";
+import type { MaintenanceWorkOrder } from "../../../Ontology/Objects/MaintenanceWorkOrder.js";
 
 /** Computed KPI values for the banner. */
 export interface KPIValues {

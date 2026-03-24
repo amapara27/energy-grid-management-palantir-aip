@@ -1,0 +1,34 @@
+[
+  {
+    "_reason": "missing transformer_id",
+    "oil_temp_c": 72.5,
+    "load_amps": 310.0,
+    "voltage_kv": 12.47,
+    "timestamp": "2026-03-23T08:00:00Z"
+  },
+  {
+    "_reason": "missing oil_temp_c",
+    "transformer_id": "TRF-004",
+    "load_amps": 310.0,
+    "voltage_kv": 12.47,
+    "timestamp": "2026-03-23T08:00:00Z"
+  },
+  {
+    "_reason": "oil_temp_c is wrong type (string instead of number)",
+    "transformer_id": "TRF-005",
+    "oil_temp_c": "hot",
+    "load_amps": 310.0,
+    "voltage_kv": 12.47,
+    "timestamp": "2026-03-23T08:00:00Z"
+  },
+  {
+    "_reason": "missing timestamp",
+    "transformer_id": "TRF-006",
+    "oil_temp_c": 55.0,
+    "load_amps": 200.0,
+    "voltage_kv": 12.47
+  },
+  {
+    "_reason": "empty object — all required fields missing"
+  }
+]

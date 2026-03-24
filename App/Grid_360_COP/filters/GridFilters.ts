@@ -8,7 +8,7 @@
  * @see Requirements 5.7
  */
 
-import type { Transformer, AlertStatus } from "../../Ontology/Objects/Transformer.js";
+import type { Transformer, AlertStatus } from "../../../Ontology/Objects/Transformer.js";
 
 /** Filter criteria that can be applied to the COP views. */
 export interface GridFilterCriteria {

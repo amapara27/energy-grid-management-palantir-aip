@@ -8,7 +8,7 @@
  * @see Requirements 5.4, 6.1
  */
 
-import type { MaintenanceWorkOrder } from "../../Ontology/Objects/MaintenanceWorkOrder.js";
+import type { MaintenanceWorkOrder } from "../../../Ontology/Objects/MaintenanceWorkOrder.js";
 
 /** A single item rendered in the action inbox. */
 export interface InboxItem {

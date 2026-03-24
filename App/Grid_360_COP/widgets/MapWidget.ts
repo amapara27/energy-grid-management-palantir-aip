@@ -10,7 +10,7 @@
  * @see Requirements 5.1, 5.2, 5.6
  */
 
-import type { Transformer, AlertStatus } from "../../Ontology/Objects/Transformer.js";
+import type { Transformer, AlertStatus } from "../../../Ontology/Objects/Transformer.js";
 
 /** GIS coordinate pair for map positioning. */
 export interface GeoCoordinate {

@@ -8,7 +8,7 @@
  * @see Requirements 5.3
  */
 
-import type { Transformer } from "../../Ontology/Objects/Transformer.js";
+import type { Transformer } from "../../../Ontology/Objects/Transformer.js";
 
 /** A single row in the object table. */
 export interface ObjectTableRow {
