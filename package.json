@@ -8,8 +8,15 @@
     "test": "vitest --run"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
+    "@osdk/cli": "^0.31.1",
     "fast-check": "^3.23.0",
+    "typescript": "^5.7.0",
     "vitest": "^3.1.0"
+  },
+  "dependencies": {
+    "@grid/sdk": "^0.2.0",
+    "@osdk/client": "^2.7.7",
+    "@osdk/foundry": "^2.56.0",
+    "@osdk/oauth": "^1.7.0"
   }
 }
