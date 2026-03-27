@@ -221,7 +221,47 @@ const woStatusColor: Record<string, string> = {
   Rejected: "text-rose-400",
   ERP_Error: "text-rose-400",
   ERP_Pending: "text-amber-400",
+  COMPLETED: "text-emerald-400",
 };
+
+function isRecent(timestamp: string): boolean {
+  return Date.now() - new Date(timestamp).getTime() < 24 * 60 * 60 * 1000;
+}
+
+function WorkOrderCard({ wo }: { wo: WorkOrderData }) {
+  return (
+    <div className="p-3 rounded-lg border border-slate-800 bg-slate-900/60 space-y-1.5">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-medium text-white truncate max-w-[120px]">
+          {wo.woId}
+        </span>
+        <span className={`text-[10px] uppercase tracking-wider font-medium ${woPriorityColor[wo.priority] ?? "text-slate-400"}`}>
+          {wo.priority}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 gap-1 text-[10px]">
+        <div className="text-slate-500">
+          ASSET <span className="text-slate-300 font-medium">{wo.transformerId}</span>
+        </div>
+        <div className="text-slate-500">
+          STATUS{" "}
+          <span className={`font-medium ${woStatusColor[wo.status] ?? "text-slate-300"}`}>
+            {wo.status.replace(/_/g, " ")}
+          </span>
+        </div>
+        <div className="text-slate-500">
+          CREW <span className="text-slate-300 font-medium">{wo.assignedCrew || "—"}</span>
+        </div>
+        <div className="text-slate-500">
+          CREATED{" "}
+          <span className="text-slate-300 font-medium">
+            {new Date(wo.createdTimestamp).toLocaleDateString()}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function WorkOrderSidebar({
   workOrders,
@@ -236,6 +276,14 @@ function WorkOrderSidebar({
   onToggle: () => void;
   onRefresh: () => void;
 }) {
+  const [tab, setTab] = useState<"recent" | "all">("recent");
+
+  const sorted = [...workOrders].sort(
+    (a, b) => new Date(b.createdTimestamp).getTime() - new Date(a.createdTimestamp).getTime()
+  );
+  const recentOrders = sorted.filter((wo) => isRecent(wo.createdTimestamp));
+  const displayed = tab === "recent" ? recentOrders : sorted;
+
   return (
     <aside
       className={`border-l border-slate-800 flex flex-col shrink-0 bg-slate-900/40 transition-all duration-300 ${
@@ -246,7 +294,7 @@ function WorkOrderSidebar({
       <button
         onClick={onToggle}
         className="h-14 border-b border-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-        title={open ? "Collapse work orders" : "Show work orders"}
+        title={open ? "Collapse maintenance log" : "Show maintenance log"}
       >
         <span className="text-xs">{open ? "›" : "‹"}</span>
       </button>
@@ -256,10 +304,10 @@ function WorkOrderSidebar({
           <div className="p-4 border-b border-slate-800 flex items-center justify-between">
             <div>
               <h2 className="text-xs font-semibold text-white uppercase tracking-wider">
-                Work Orders
+                Maintenance Log
               </h2>
               <p className="text-[10px] text-slate-500 mt-0.5">
-                {workOrders.length} orders
+                {displayed.length} of {workOrders.length} orders
               </p>
             </div>
             <button
@@ -280,49 +328,40 @@ function WorkOrderSidebar({
               )}
             </button>
           </div>
+
+          {/* Tabs */}
+          <div className="flex border-b border-slate-800">
+            <button
+              onClick={() => setTab("recent")}
+              className={`flex-1 py-2 text-[10px] uppercase tracking-wider font-medium transition-colors ${
+                tab === "recent"
+                  ? "text-cyan-400 border-b-2 border-cyan-400"
+                  : "text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              Last 24h{recentOrders.length > 0 ? ` (${recentOrders.length})` : ""}
+            </button>
+            <button
+              onClick={() => setTab("all")}
+              className={`flex-1 py-2 text-[10px] uppercase tracking-wider font-medium transition-colors ${
+                tab === "all"
+                  ? "text-cyan-400 border-b-2 border-cyan-400"
+                  : "text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              All ({sorted.length})
+            </button>
+          </div>
+
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {workOrders.length === 0 && !loading && (
+            {displayed.length === 0 && !loading && (
               <div className="text-center py-12 text-slate-600 text-xs">
                 <div className="text-2xl mb-2 opacity-40">📋</div>
-                No work orders found
+                {tab === "recent" ? "No orders in the last 24 hours" : "No work orders found"}
               </div>
             )}
-            {workOrders.map((wo) => (
-              <div
-                key={wo.woId}
-                className="p-3 rounded-lg border border-slate-800 bg-slate-900/60 space-y-1.5"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-medium text-white truncate max-w-[120px]">
-                    {wo.woId}
-                  </span>
-                  <span className={`text-[10px] uppercase tracking-wider font-medium ${woPriorityColor[wo.priority] ?? "text-slate-400"}`}>
-                    {wo.priority}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 gap-1 text-[10px]">
-                  <div className="text-slate-500">
-                    ASSET{" "}
-                    <span className="text-slate-300 font-medium">{wo.transformerId}</span>
-                  </div>
-                  <div className="text-slate-500">
-                    STATUS{" "}
-                    <span className={`font-medium ${woStatusColor[wo.status] ?? "text-slate-300"}`}>
-                      {wo.status.replace(/_/g, " ")}
-                    </span>
-                  </div>
-                  <div className="text-slate-500">
-                    CREW{" "}
-                    <span className="text-slate-300 font-medium">{wo.assignedCrew || "—"}</span>
-                  </div>
-                  <div className="text-slate-500">
-                    CREATED{" "}
-                    <span className="text-slate-300 font-medium">
-                      {new Date(wo.createdTimestamp).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
+            {displayed.map((wo) => (
+              <WorkOrderCard key={wo.woId} wo={wo} />
             ))}
           </div>
         </>
@@ -415,7 +454,7 @@ function Dashboard() {
         erpReferenceId: `ERP-${selected.transformerId}-${Date.now()}`,
         priority: analysisOutput.includes("ALERT") ? "HIGH" : "MEDIUM",
         status: "OPEN",
-        assignedCrew: "UNASSIGNED",
+        assignedCrew: "Crew-Standby-1",
       });
       setAnalysisOutput((prev) => prev + "\n\n✓ Maintenance work order created successfully.");
       loadWorkOrders();
