@@ -1,7 +1,27 @@
 import { useState, useCallback } from "react";
 import { Routes, Route } from "react-router-dom";
 import { client, auth } from "./client";
-import { Transformer } from "@grid/sdk";
+import { Transformer, evaluateTransformerRisk, createMaintenanceHistory, MaintenanceHistory } from "@grid/sdk";
+
+/*
+ * ── OSDK Schema Reference ──────────────────────────────────────────
+ *
+ * Query: evaluateTransformerRisk
+ *   Signature: (query: { targetTransformer: QueryParam.ObjectType<Transformer> }) => Promise<string>
+ *   Call pattern: client(evaluateTransformerRisk).executeFunction({ targetTransformer: osdkObj })
+ *
+ * Action: createMaintenanceHistory
+ *   Parameters:
+ *     assignedCrew:      string       (required)
+ *     createdTimestamp:   timestamp    (required, ISO-8601 string)
+ *     erpReferenceId:    string       (required)
+ *     priority:          string       (required)
+ *     status:            string       (required)
+ *     transformerId:     string       (required)
+ *   Call pattern: client(createMaintenanceHistory).applyAction({ ...params })
+ *
+ * ────────────────────────────────────────────────────────────────────
+ */
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface TransformerData {
@@ -12,6 +32,15 @@ interface TransformerData {
   ageYears?: number;
   circuitId?: string;
   geographicZone?: string;
+}
+
+interface WorkOrderData {
+  woId: string;
+  transformerId: string;
+  priority: string;
+  status: string;
+  assignedCrew: string;
+  createdTimestamp: string;
 }
 
 /* ── Helpers ───────────────────────────────────────────────── */
@@ -148,7 +177,7 @@ function TransformerCard({
 
 /* ── Analysis Terminal ─────────────────────────────────────── */
 function AnalysisTerminal({ output, loading }: { output: string | null; loading: boolean }) {
-  const hasAlert = output?.includes("ALERT");
+  const isHighRisk = output ? /HIGH RISK|CRITICAL|ELEVATED|IMMEDIATE/i.test(output) && !/LOW RISK|NOMINAL/i.test(output) : false;
   return (
     <div className="bg-black/80 border border-slate-800 rounded-lg p-4 font-mono text-xs min-h-[200px] max-h-[400px] overflow-auto relative">
       <div className="flex items-center gap-2 mb-3 text-[10px] text-slate-600 uppercase tracking-widest">
@@ -164,7 +193,7 @@ function AnalysisTerminal({ output, loading }: { output: string | null; loading:
           <span>Analyzing telemetry data...</span>
         </div>
       ) : output ? (
-        <pre className={`whitespace-pre-wrap leading-relaxed ${hasAlert ? "text-rose-400" : "text-emerald-400/90"}`}>
+        <pre className={`whitespace-pre-wrap leading-relaxed ${isHighRisk ? "text-rose-400" : "text-emerald-400/90"}`}>
           {output}
         </pre>
       ) : (
@@ -173,6 +202,132 @@ function AnalysisTerminal({ output, loading }: { output: string | null; loading:
         </span>
       )}
     </div>
+  );
+}
+
+/* ── Work Order Sidebar ─────────────────────────────────────── */
+const woPriorityColor: Record<string, string> = {
+  Critical: "text-rose-400",
+  HIGH: "text-rose-400",
+  High: "text-amber-400",
+  MEDIUM: "text-amber-400",
+};
+
+const woStatusColor: Record<string, string> = {
+  OPEN: "text-cyan-400",
+  Pending_Approval: "text-amber-400",
+  Approved: "text-emerald-400",
+  Dispatched: "text-emerald-400",
+  Rejected: "text-rose-400",
+  ERP_Error: "text-rose-400",
+  ERP_Pending: "text-amber-400",
+};
+
+function WorkOrderSidebar({
+  workOrders,
+  loading,
+  open,
+  onToggle,
+  onRefresh,
+}: {
+  workOrders: WorkOrderData[];
+  loading: boolean;
+  open: boolean;
+  onToggle: () => void;
+  onRefresh: () => void;
+}) {
+  return (
+    <aside
+      className={`border-l border-slate-800 flex flex-col shrink-0 bg-slate-900/40 transition-all duration-300 ${
+        open ? "w-80" : "w-10"
+      }`}
+    >
+      {/* Toggle strip */}
+      <button
+        onClick={onToggle}
+        className="h-14 border-b border-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+        title={open ? "Collapse work orders" : "Show work orders"}
+      >
+        <span className="text-xs">{open ? "›" : "‹"}</span>
+      </button>
+
+      {open && (
+        <>
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h2 className="text-xs font-semibold text-white uppercase tracking-wider">
+                Work Orders
+              </h2>
+              <p className="text-[10px] text-slate-500 mt-0.5">
+                {workOrders.length} orders
+              </p>
+            </div>
+            <button
+              onClick={onRefresh}
+              disabled={loading}
+              className="text-[10px] px-2.5 py-1.5 rounded border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-2.5 w-2.5" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Loading...
+                </>
+              ) : (
+                "Refresh"
+              )}
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            {workOrders.length === 0 && !loading && (
+              <div className="text-center py-12 text-slate-600 text-xs">
+                <div className="text-2xl mb-2 opacity-40">📋</div>
+                No work orders found
+              </div>
+            )}
+            {workOrders.map((wo) => (
+              <div
+                key={wo.woId}
+                className="p-3 rounded-lg border border-slate-800 bg-slate-900/60 space-y-1.5"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-medium text-white truncate max-w-[120px]">
+                    {wo.woId}
+                  </span>
+                  <span className={`text-[10px] uppercase tracking-wider font-medium ${woPriorityColor[wo.priority] ?? "text-slate-400"}`}>
+                    {wo.priority}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-1 text-[10px]">
+                  <div className="text-slate-500">
+                    ASSET{" "}
+                    <span className="text-slate-300 font-medium">{wo.transformerId}</span>
+                  </div>
+                  <div className="text-slate-500">
+                    STATUS{" "}
+                    <span className={`font-medium ${woStatusColor[wo.status] ?? "text-slate-300"}`}>
+                      {wo.status.replace(/_/g, " ")}
+                    </span>
+                  </div>
+                  <div className="text-slate-500">
+                    CREW{" "}
+                    <span className="text-slate-300 font-medium">{wo.assignedCrew || "—"}</span>
+                  </div>
+                  <div className="text-slate-500">
+                    CREATED{" "}
+                    <span className="text-slate-300 font-medium">
+                      {new Date(wo.createdTimestamp).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </aside>
   );
 }
 
@@ -185,6 +340,11 @@ function Dashboard() {
   const [selected, setSelected] = useState<TransformerData | null>(null);
   const [analysisOutput, setAnalysisOutput] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [rawTransformers, setRawTransformers] = useState<Map<string, Transformer.OsdkInstance>>(new Map());
+  const [isSubmittingAction, setIsSubmittingAction] = useState(false);
+  const [workOrders, setWorkOrders] = useState<WorkOrderData[]>([]);
+  const [loadingWorkOrders, setLoadingWorkOrders] = useState(false);
+  const [woSidebarOpen, setWoSidebarOpen] = useState(true);
 
   const handleConnect = useCallback(async () => {
     setConnecting(true);
@@ -202,15 +362,20 @@ function Dashboard() {
     setLoadingGrid(true);
     try {
       const res = await client(Transformer).fetchPage({ $pageSize: 20 });
-      const mapped: TransformerData[] = (res.data as any[]).map((t: any) => ({
-        transformerId: t.transformerId ?? t.$primaryKey ?? "unknown",
-        oilTempC: t.oilTempC ?? undefined,
-        loadAmps: t.loadAmps ?? undefined,
-        voltage: t.voltage ?? undefined,
-        ageYears: t.ageYears ?? undefined,
-        circuitId: t.circuitId ?? undefined,
-        geographicZone: t.geographicZone ?? undefined,
-      }));
+      const osdkMap = new Map<string, Transformer.OsdkInstance>();
+      const mapped: TransformerData[] = (res.data as any[]).map((t: any) => {
+        osdkMap.set(t.transformerId ?? t.$primaryKey, t);
+        return {
+          transformerId: t.transformerId ?? t.$primaryKey ?? "unknown",
+          oilTempC: t.oilTempC ?? undefined,
+          loadAmps: t.loadAmps ?? undefined,
+          voltage: t.voltage ?? undefined,
+          ageYears: t.ageYears ?? undefined,
+          circuitId: t.circuitId ?? undefined,
+          geographicZone: t.geographicZone ?? undefined,
+        };
+      });
+      setRawTransformers(osdkMap);
       setTransformers(mapped);
       setAuthenticated(true);
     } catch (e) {
@@ -222,23 +387,65 @@ function Dashboard() {
 
   const runAnalysis = useCallback(async () => {
     if (!selected) return;
+    const osdkObj = rawTransformers.get(selected.transformerId);
+    if (!osdkObj) return;
     setAnalyzing(true);
     setAnalysisOutput(null);
     try {
-      // Placeholder — evaluate_transformer_risk not yet implemented
-      await new Promise((r) => setTimeout(r, 2000));
-      const mockResult =
-        (selected.oilTempC ?? 0) > 85
-          ? `⚠ ALERT: Transformer ${selected.transformerId} shows elevated thermal risk.\nOil temperature ${selected.oilTempC?.toFixed(1)}°C exceeds threshold.\nRecommendation: Schedule immediate inspection.`
-          : `✓ Transformer ${selected.transformerId} operating within normal parameters.\nOil temp: ${selected.oilTempC?.toFixed(1) ?? "N/A"}°C | Load: ${selected.loadAmps?.toFixed(0) ?? "N/A"}A\nNo immediate action required.`;
-      setAnalysisOutput(mockResult);
+      const result = await client(evaluateTransformerRisk).executeFunction({
+        targetTransformer: osdkObj,
+      });
+      setAnalysisOutput(result);
     } catch (e) {
       setAnalysisOutput("Error running analysis. Check console.");
-      console.error(e);
+      console.error("evaluateTransformerRisk failed:", e);
     } finally {
       setAnalyzing(false);
     }
-  }, [selected]);
+  }, [selected, rawTransformers]);
+
+  const logMaintenance = useCallback(async () => {
+    if (!selected || !analysisOutput) return;
+    setIsSubmittingAction(true);
+    try {
+      const now = new Date().toISOString();
+      await client(createMaintenanceHistory).applyAction({
+        transformerId: selected.transformerId,
+        createdTimestamp: now,
+        erpReferenceId: `ERP-${selected.transformerId}-${Date.now()}`,
+        priority: analysisOutput.includes("ALERT") ? "HIGH" : "MEDIUM",
+        status: "OPEN",
+        assignedCrew: "UNASSIGNED",
+      });
+      setAnalysisOutput((prev) => prev + "\n\n✓ Maintenance work order created successfully.");
+      loadWorkOrders();
+    } catch (e) {
+      setAnalysisOutput((prev) => prev + "\n\n✗ Failed to create work order. Check console.");
+      console.error("createMaintenanceHistory failed:", e);
+    } finally {
+      setIsSubmittingAction(false);
+    }
+  }, [selected, analysisOutput]);
+
+  const loadWorkOrders = useCallback(async () => {
+    setLoadingWorkOrders(true);
+    try {
+      const res = await client(MaintenanceHistory).fetchPage({ $pageSize: 50 });
+      const mapped: WorkOrderData[] = (res.data as any[]).map((wo: any) => ({
+        woId: wo.woId ?? wo.$primaryKey ?? "unknown",
+        transformerId: wo.transformerId ?? "—",
+        priority: wo.priority ?? "—",
+        status: wo.status ?? "—",
+        assignedCrew: wo.assignedCrew ?? "UNASSIGNED",
+        createdTimestamp: wo.createdTimestamp ?? new Date().toISOString(),
+      }));
+      setWorkOrders(mapped);
+    } catch (e) {
+      console.error("Failed to fetch work orders:", e);
+    } finally {
+      setLoadingWorkOrders(false);
+    }
+  }, []);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -317,6 +524,19 @@ function Dashboard() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   {(() => {
+                    // After analysis, derive status from AIP output; otherwise use temperature
+                    if (analysisOutput) {
+                      const isHighRisk = /HIGH RISK|CRITICAL|ELEVATED|IMMEDIATE/i.test(analysisOutput) && !/LOW RISK|NOMINAL/i.test(analysisOutput);
+                      const s = isHighRisk ? "critical" as const : "healthy" as const;
+                      return (
+                        <>
+                          <div className={`w-2 h-2 rounded-full ${statusDot[s]} ${statusGlow[s]}`} />
+                          <span className={`text-xs font-medium ${statusColor[s]}`}>
+                            {isHighRisk ? "AT RISK" : "LOW RISK"}
+                          </span>
+                        </>
+                      );
+                    }
                     const s = getStatus(selected.oilTempC);
                     return (
                       <>
@@ -374,6 +594,27 @@ function Dashboard() {
 
               {/* Terminal output */}
               <AnalysisTerminal output={analysisOutput} loading={analyzing} />
+
+              {/* Work Order button */}
+              {analysisOutput && (
+                <button
+                  onClick={logMaintenance}
+                  disabled={isSubmittingAction || analyzing}
+                  className="w-full py-3 rounded-lg font-medium text-sm transition-all border border-amber-500/30 text-amber-400 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-400/50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isSubmittingAction ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Creating Work Order...
+                    </>
+                  ) : (
+                    "📋 Create Maintenance Work Order"
+                  )}
+                </button>
+              )}
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center">
@@ -389,6 +630,15 @@ function Dashboard() {
             </div>
           )}
         </main>
+
+        {/* ── Right: Work Orders Sidebar ───────────────────── */}
+        <WorkOrderSidebar
+          workOrders={workOrders}
+          loading={loadingWorkOrders}
+          open={woSidebarOpen}
+          onToggle={() => setWoSidebarOpen((o) => !o)}
+          onRefresh={loadWorkOrders}
+        />
       </div>
     </div>
   );
