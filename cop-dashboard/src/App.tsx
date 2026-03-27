@@ -177,7 +177,9 @@ function TransformerCard({
 
 /* ── Analysis Terminal ─────────────────────────────────────── */
 function AnalysisTerminal({ output, loading }: { output: string | null; loading: boolean }) {
-  const isHighRisk = output ? /HIGH RISK|CRITICAL|ELEVATED|IMMEDIATE/i.test(output) && !/LOW RISK|NOMINAL/i.test(output) : false;
+  const isHealthy = output ? /HEALTHY/i.test(output) : false;
+  const isWarning = output ? /WARNING/i.test(output) : false;
+  const terminalColor = isHealthy ? "text-emerald-400/90" : isWarning ? "text-amber-400" : "text-rose-400";
   return (
     <div className="bg-black/80 border border-slate-800 rounded-lg p-4 font-mono text-xs min-h-[200px] max-h-[400px] overflow-auto relative">
       <div className="flex items-center gap-2 mb-3 text-[10px] text-slate-600 uppercase tracking-widest">
@@ -193,7 +195,7 @@ function AnalysisTerminal({ output, loading }: { output: string | null; loading:
           <span>Analyzing telemetry data...</span>
         </div>
       ) : output ? (
-        <pre className={`whitespace-pre-wrap leading-relaxed ${isHighRisk ? "text-rose-400" : "text-emerald-400/90"}`}>
+        <pre className={`whitespace-pre-wrap leading-relaxed ${terminalColor}`}>
           {output}
         </pre>
       ) : (
@@ -565,13 +567,15 @@ function Dashboard() {
                   {(() => {
                     // After analysis, derive status from AIP output; otherwise use temperature
                     if (analysisOutput) {
-                      const isHighRisk = /HIGH RISK|CRITICAL|ELEVATED|IMMEDIATE/i.test(analysisOutput) && !/LOW RISK|NOMINAL/i.test(analysisOutput);
-                      const s = isHighRisk ? "critical" as const : "healthy" as const;
+                      const healthy = /HEALTHY/i.test(analysisOutput);
+                      const warning = /WARNING/i.test(analysisOutput);
+                      const s = healthy ? "healthy" as const : warning ? "warning" as const : "critical" as const;
+                      const label = healthy ? "HEALTHY" : warning ? "WARNING" : "AT RISK";
                       return (
                         <>
                           <div className={`w-2 h-2 rounded-full ${statusDot[s]} ${statusGlow[s]}`} />
                           <span className={`text-xs font-medium ${statusColor[s]}`}>
-                            {isHighRisk ? "AT RISK" : "LOW RISK"}
+                            {label}
                           </span>
                         </>
                       );
